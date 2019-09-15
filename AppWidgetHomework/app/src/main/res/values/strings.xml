@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AppWidgetHomework</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="hint_start_typing">Start typing...</string>
+    <string name="submit">Submit</string>
+    <string name="time">Time</string>
+</resources>
