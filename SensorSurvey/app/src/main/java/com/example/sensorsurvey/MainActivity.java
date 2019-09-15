@@ -28,9 +28,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor proximitySensor;
     private Sensor lightSensor;
+    private Sensor humiditySensor;
 
     private TextView lightSensorTextView;
     private TextView proximitySensorTextView;
+    private TextView humiditySensorTextView;
     private ImageView sensorImageView;
     private ViewGroup rootView;
     float proximityLow = 0;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
         lightSensorTextView = findViewById(R.id.label_light);
         proximitySensorTextView = findViewById(R.id.label_proximity);
+        humiditySensorTextView = findViewById(R.id.label_humidity);
+
         sensorImageView = findViewById(R.id.sensor_image_view);
         rootView = findViewById(R.id.sensor_layout);
 
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        humiditySensor = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
 
         proximityLow = proximitySensor.getMaximumRange() / 3;
         proximityMid = proximitySensor.getMaximumRange() / 2;
@@ -71,6 +76,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         if (proximitySensor == null) {
             proximitySensorTextView.setText(getString(R.string.error_no_sensor));
+        }
+
+        if (humiditySensor == null) {
+            humiditySensorTextView.setText(getString(R.string.error_no_sensor));
         }
     }
 
@@ -92,9 +101,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     SensorManager.SENSOR_DELAY_NORMAL
             );
         }
+
+        if (humiditySensor != null) {
+            sensorManager.registerListener(
+                    this,
+                    humiditySensor,
+                    SensorManager.SENSOR_DELAY_NORMAL
+            );
+        }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         int sensorType = sensorEvent.sensor.getType();
@@ -109,12 +125,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 changeImageSize(currentValue);
                 proximitySensorTextView.setText(getString(R.string.label_proximity, currentValue));
                 break;
+            case Sensor.TYPE_RELATIVE_HUMIDITY:
+                humiditySensorTextView.setText(getString(R.string.label_humidity, currentValue));
+                break;
             default:
 
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void changeBackgroundColor(float currentValue) {
         @ColorInt int color = transformValueToColor(currentValue);
 
@@ -127,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private int transformValueToColor(float currentValue) {
         long currentValue1 = (long) currentValue;
         String hexColor = String.format("#%06X", (0xFFFFFF & currentValue1));
@@ -147,8 +164,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         sensorManager.unregisterListener(this);
     }
 }
